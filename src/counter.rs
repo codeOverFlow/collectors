@@ -79,6 +79,23 @@ impl<T: Ord + Debug> Counter<T> {
         self.state.len()
     }
 
+    /// Returns `true` if the `Counter` is empty, `false` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// Basic usage:
+    ///
+    /// ```
+    /// # use collectors::Counter;
+    /// let mut counter: Counter<char> = Counter::new();
+    /// assert_eq!(counter.is_empty(), true);
+    /// counter.update_from_value('a');
+    /// assert_eq!(counter.is_empty(), false);
+    /// ```
+    pub fn is_empty(&self) -> bool {
+        self.state.is_empty()
+    }
+
     /// Update the `Counter` with an iterator.
     ///
     /// # Arguments
@@ -180,3 +197,9 @@ impl<T: Ord + Debug> PartialEq for Counter<T> {
 }
 
 impl<T: Ord + Debug> Eq for Counter<T> {}
+
+impl<T: Ord + Debug> Default for Counter<T> {
+    fn default() -> Self {
+        Counter::new()
+    }
+}
