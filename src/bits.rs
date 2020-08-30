@@ -7,9 +7,13 @@ use std::fmt::Binary;
 use std::mem::size_of;
 use std::num::ParseIntError;
 
+/// Indicate the endianness of the bit stream.
 #[derive(Debug)]
 pub enum Endianness {
+    /// Big endian: most significant byte first
     BigEndian,
+
+    /// Little endian: less significant byte first
     LittleEndian,
 }
 
@@ -23,28 +27,62 @@ pub struct Bits {
 
 impl Bits {
     /******************************** CONSTRUCTORS ********************************/
+    /// Create a new `Bits` from an u8 sequence as big endian.
+    ///
+    /// # Arguments
+    /// * data - a `&[u8]` sequence.
+    ///
+    /// # Example
+    /// ```
+    /// # use collectors::Bits;
+    /// let u8_vec: Vec<u8> = vec![0, 1, 2, 3];
+    /// let u8_arr: [u8; 4] = [0, 1, 2, 3];
+    /// let bits_from_vec = Bits::from_u8_big_endian(&u8_vec);
+    /// let bits_from_arr = Bits::from_u8_big_endian(&u8_arr);
+    ///
+    /// assert_eq!(&bits_from_vec.to_string(), "00000000|00000001|00000010|00000011");
+    /// assert_eq!(&bits_from_arr.to_string(), "00000000|00000001|00000010|00000011");
+    /// ```
     pub fn from_u8_big_endian(data: &[u8]) -> Bits {
         Bits {
             bits: data
                 .iter()
-                .map(|b| format!("{}|", format!("{:08b}", *b).chars().collect::<String>()))
-                .collect::<String>(),
+                .map(|b| format!("{}", format!("{:08b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::BigEndian,
         }
     }
 
+    /// Create a new `Bits` from an u8 sequence as little endian.
+    ///
+    /// # Arguments
+    /// * data - a `&[u8]` sequence.
+    ///
+    /// # Example
+    /// ```
+    /// # use collectors::Bits;
+    /// let u8_vec: Vec<u8> = vec![0, 1, 2, 3];
+    /// let u8_arr: [u8; 4] = [0, 1, 2, 3];
+    /// let bits_from_vec = Bits::from_u8_little_endian(&u8_vec);
+    /// let bits_from_arr = Bits::from_u8_little_endian(&u8_arr);
+    ///
+    /// assert_eq!(&bits_from_vec.to_string(), "00000000|00000001|00000010|00000011");
+    /// assert_eq!(&bits_from_arr.to_string(), "00000000|10000000|01000000|11000000");
+    /// ```
     pub fn from_u8_little_endian(data: &[u8]) -> Bits {
         Bits {
             bits: data
                 .iter()
                 .map(|b| {
                     format!(
-                        "{}|",
+                        "{}",
                         format!("{:08b}", *b).chars().rev().collect::<String>()
                     )
                 })
-                .collect::<String>(),
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::LittleEndian,
         }
@@ -54,8 +92,9 @@ impl Bits {
         Bits {
             bits: data
                 .iter()
-                .map(|b| format!("{}|", format!("{:016b}", *b).chars().collect::<String>()))
-                .collect::<String>(),
+                .map(|b| format!("{}", format!("{:016b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::BigEndian,
         }
@@ -67,11 +106,12 @@ impl Bits {
                 .iter()
                 .map(|b| {
                     format!(
-                        "{}|",
+                        "{}",
                         format!("{:016b}", *b).chars().rev().collect::<String>()
                     )
                 })
-                .collect::<String>(),
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::LittleEndian,
         }
@@ -81,8 +121,9 @@ impl Bits {
         Bits {
             bits: data
                 .iter()
-                .map(|b| format!("{}|", format!("{:032b}", *b).chars().collect::<String>()))
-                .collect::<String>(),
+                .map(|b| format!("{}", format!("{:032b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::BigEndian,
         }
@@ -94,11 +135,12 @@ impl Bits {
                 .iter()
                 .map(|b| {
                     format!(
-                        "{}|",
+                        "{}",
                         format!("{:032b}", *b).chars().rev().collect::<String>()
                     )
                 })
-                .collect::<String>(),
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::LittleEndian,
         }
@@ -108,8 +150,9 @@ impl Bits {
         Bits {
             bits: data
                 .iter()
-                .map(|b| format!("{}|", format!("{:064b}", *b).chars().collect::<String>()))
-                .collect::<String>(),
+                .map(|b| format!("{}", format!("{:064b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::BigEndian,
         }
@@ -121,11 +164,12 @@ impl Bits {
                 .iter()
                 .map(|b| {
                     format!(
-                        "{}|",
+                        "{}",
                         format!("{:064b}", *b).chars().rev().collect::<String>()
                     )
                 })
-                .collect::<String>(),
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::LittleEndian,
         }
@@ -135,8 +179,9 @@ impl Bits {
         Bits {
             bits: data
                 .iter()
-                .map(|b| format!("{}|", format!("{:0128b}", *b).chars().collect::<String>()))
-                .collect::<String>(),
+                .map(|b| format!("{}", format!("{:0128b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::BigEndian,
         }
@@ -148,38 +193,171 @@ impl Bits {
                 .iter()
                 .map(|b| {
                     format!(
-                        "{}|",
+                        "{}",
                         format!("{:0128b}", *b).chars().rev().collect::<String>()
                     )
                 })
-                .collect::<String>(),
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::LittleEndian,
         }
     }
 
+    #[cfg(target_pointer_width = "8")]
     pub fn from_usize_big_endian(data: &[usize]) -> Bits {
+        #![cfg]
         Bits {
             bits: data
                 .iter()
-                .map(|b| format!("{}|", format!("{:064b}", *b).chars().collect::<String>()))
-                .collect::<String>(),
+                .map(|b| format!("{}", format!("{:08b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::BigEndian,
         }
     }
 
+    #[cfg(target_pointer_width = "8")]
     pub fn from_usize_little_endian(data: &[usize]) -> Bits {
         Bits {
             bits: data
                 .iter()
                 .map(|b| {
                     format!(
-                        "{}|",
+                        "{}",
+                        format!("{:08b}", *b).chars().rev().collect::<String>()
+                    )
+                })
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::LittleEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "16")]
+    pub fn from_usize_big_endian(data: &[usize]) -> Bits {
+        #![cfg]
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| format!("{}", format!("{:016b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::BigEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "16")]
+    pub fn from_usize_little_endian(data: &[usize]) -> Bits {
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| {
+                    format!(
+                        "{}",
+                        format!("{:016b}", *b).chars().rev().collect::<String>()
+                    )
+                })
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::LittleEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "32")]
+    pub fn from_usize_big_endian(data: &[usize]) -> Bits {
+        #![cfg]
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| format!("{}", format!("{:032b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::BigEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "32")]
+    pub fn from_usize_little_endian(data: &[usize]) -> Bits {
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| {
+                    format!(
+                        "{}",
+                        format!("{:032b}", *b).chars().rev().collect::<String>()
+                    )
+                })
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::LittleEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "64")]
+    pub fn from_usize_big_endian(data: &[usize]) -> Bits {
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| format!("{}", format!("{:064b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::BigEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "64")]
+    pub fn from_usize_little_endian(data: &[usize]) -> Bits {
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| {
+                    format!(
+                        "{}",
                         format!("{:064b}", *b).chars().rev().collect::<String>()
                     )
                 })
-                .collect::<String>(),
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::LittleEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "128")]
+    pub fn from_usize_big_endian(data: &[usize]) -> Bits {
+        #![cfg]
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| format!("{}", format!("{:0128b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::BigEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "128")]
+    pub fn from_usize_little_endian(data: &[usize]) -> Bits {
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| {
+                    format!(
+                        "{}",
+                        format!("{:0128b}", *b).chars().rev().collect::<String>()
+                    )
+                })
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::LittleEndian,
         }
@@ -189,8 +367,9 @@ impl Bits {
         Bits {
             bits: data
                 .iter()
-                .map(|b| format!("{}|", format!("{:08b}", *b).chars().collect::<String>()))
-                .collect::<String>(),
+                .map(|b| format!("{}", format!("{:08b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::BigEndian,
         }
@@ -202,11 +381,12 @@ impl Bits {
                 .iter()
                 .map(|b| {
                     format!(
-                        "{}|",
+                        "{}",
                         format!("{:08b}", *b).chars().rev().collect::<String>()
                     )
                 })
-                .collect::<String>(),
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::LittleEndian,
         }
@@ -216,8 +396,9 @@ impl Bits {
         Bits {
             bits: data
                 .iter()
-                .map(|b| format!("{}|", format!("{:016b}", *b).chars().collect::<String>()))
-                .collect::<String>(),
+                .map(|b| format!("{}", format!("{:016b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::BigEndian,
         }
@@ -229,11 +410,12 @@ impl Bits {
                 .iter()
                 .map(|b| {
                     format!(
-                        "{}|",
+                        "{}",
                         format!("{:016b}", *b).chars().rev().collect::<String>()
                     )
                 })
-                .collect::<String>(),
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::LittleEndian,
         }
@@ -243,8 +425,9 @@ impl Bits {
         Bits {
             bits: data
                 .iter()
-                .map(|b| format!("{}|", format!("{:032b}", *b).chars().collect::<String>()))
-                .collect::<String>(),
+                .map(|b| format!("{}", format!("{:032b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::BigEndian,
         }
@@ -256,11 +439,12 @@ impl Bits {
                 .iter()
                 .map(|b| {
                     format!(
-                        "{}|",
+                        "{}",
                         format!("{:032b}", *b).chars().rev().collect::<String>()
                     )
                 })
-                .collect::<String>(),
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::LittleEndian,
         }
@@ -270,8 +454,9 @@ impl Bits {
         Bits {
             bits: data
                 .iter()
-                .map(|b| format!("{}|", format!("{:064b}", *b).chars().collect::<String>()))
-                .collect::<String>(),
+                .map(|b| format!("{}", format!("{:064b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::BigEndian,
         }
@@ -283,11 +468,12 @@ impl Bits {
                 .iter()
                 .map(|b| {
                     format!(
-                        "{}|",
+                        "{}",
                         format!("{:064b}", *b).chars().rev().collect::<String>()
                     )
                 })
-                .collect::<String>(),
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::LittleEndian,
         }
@@ -297,8 +483,9 @@ impl Bits {
         Bits {
             bits: data
                 .iter()
-                .map(|b| format!("{}|", format!("{:0128b}", *b).chars().collect::<String>()))
-                .collect::<String>(),
+                .map(|b| format!("{}", format!("{:0128b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::BigEndian,
         }
@@ -310,38 +497,171 @@ impl Bits {
                 .iter()
                 .map(|b| {
                     format!(
-                        "{}|",
+                        "{}",
                         format!("{:0128b}", *b).chars().rev().collect::<String>()
                     )
                 })
-                .collect::<String>(),
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::LittleEndian,
         }
     }
 
+    #[cfg(target_pointer_width = "8")]
     pub fn from_isize_big_endian(data: &[isize]) -> Bits {
+        #![cfg]
         Bits {
             bits: data
                 .iter()
-                .map(|b| format!("{}|", format!("{:064b}", *b).chars().collect::<String>()))
-                .collect::<String>(),
+                .map(|b| format!("{}", format!("{:08b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::BigEndian,
         }
     }
 
+    #[cfg(target_pointer_width = "8")]
     pub fn from_isize_little_endian(data: &[isize]) -> Bits {
         Bits {
             bits: data
                 .iter()
                 .map(|b| {
                     format!(
-                        "{}|",
+                        "{}",
+                        format!("{:08b}", *b).chars().rev().collect::<String>()
+                    )
+                })
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::LittleEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "16")]
+    pub fn from_isize_big_endian(data: &[isize]) -> Bits {
+        #![cfg]
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| format!("{}", format!("{:016b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::BigEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "16")]
+    pub fn from_isize_little_endian(data: &[isize]) -> Bits {
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| {
+                    format!(
+                        "{}",
+                        format!("{:016b}", *b).chars().rev().collect::<String>()
+                    )
+                })
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::LittleEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "32")]
+    pub fn from_isize_big_endian(data: &[isize]) -> Bits {
+        #![cfg]
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| format!("{}", format!("{:032b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::BigEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "32")]
+    pub fn from_isize_little_endian(data: &[isize]) -> Bits {
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| {
+                    format!(
+                        "{}",
+                        format!("{:032b}", *b).chars().rev().collect::<String>()
+                    )
+                })
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::LittleEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "64")]
+    pub fn from_isize_big_endian(data: &[isize]) -> Bits {
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| format!("{}", format!("{:064b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::BigEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "64")]
+    pub fn from_isize_little_endian(data: &[isize]) -> Bits {
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| {
+                    format!(
+                        "{}",
                         format!("{:064b}", *b).chars().rev().collect::<String>()
                     )
                 })
-                .collect::<String>(),
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::LittleEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "128")]
+    pub fn from_isize_big_endian(data: &[isize]) -> Bits {
+        #![cfg]
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| format!("{}", format!("{:0128b}", *b).chars().collect::<String>()))
+                .collect::<Vec<String>>()
+                .join("|"),
+            delimiter: '|',
+            endianness: Endianness::BigEndian,
+        }
+    }
+
+    #[cfg(target_pointer_width = "128")]
+    pub fn from_isize_little_endian(data: &[isize]) -> Bits {
+        Bits {
+            bits: data
+                .iter()
+                .map(|b| {
+                    format!(
+                        "{}",
+                        format!("{:0128b}", *b).chars().rev().collect::<String>()
+                    )
+                })
+                .collect::<Vec<String>>()
+                .join("|"),
             delimiter: '|',
             endianness: Endianness::LittleEndian,
         }
@@ -925,6 +1245,10 @@ impl Bits {
         v
     }
 
+    pub fn endianness(&self) -> &Endianness {
+        &self.endianness
+    }
+
     /******************************** PRIVATE ********************************/
     fn get_next_n_bits(&mut self, size_to_read: usize) -> Vec<char> {
         assert!(size_to_read <= self.bits.len());
@@ -954,5 +1278,11 @@ impl Bits {
         let x = &self.bits[..=n];
         let nb_delim = x.chars().filter(|c| *c == self.delimiter).count();
         self.bits = String::from(&self.bits[n + nb_delim..]);
+    }
+}
+
+impl ToString for Bits {
+    fn to_string(&self) -> String {
+        format!("{}", self.bits)
     }
 }
